@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   // Gerar as parcelas (payments)
   const payments = [];
   const startDate = new Date(data.startDate);
-  const amount = data.installmentAmount;
+  const amount = Number(data.installmentAmount); // Garante que amount é número
   for (let i = 0; i < data.numberOfInstallments; i++) {
     const dueDate = new Date(
       startDate.getFullYear(),
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     payments.push({
       dueDate,
       status: "pending",
-      amount,
+      amount, // amount agora é número
     });
   }
 
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
     ...data,
     userId: session.user.id,
     payments,
+    installmentAmount: amount, // Garante que installmentAmount é número
   });
   return NextResponse.json(installment, { status: 201 });
 }

@@ -4,6 +4,7 @@ interface Payment {
   dueDate: Date;
   status: "pending" | "paid";
   paidDate?: Date;
+  amount: number;
 }
 
 export interface IInstallment extends Document {
@@ -23,6 +24,7 @@ const PaymentSchema = new Schema<Payment>({
   dueDate: { type: Date, required: true },
   status: { type: String, enum: ["pending", "paid"], required: true },
   paidDate: { type: Date },
+  amount: { type: Number, required: true },
 });
 
 const InstallmentSchema = new Schema<IInstallment>({
