@@ -10,7 +10,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   await connectToDatabase();
-  const installments = await Installment.find({ userId: session.user.id });
+  const installments = await Installment.find({
+    userId: session.user.id,
+  });
   return NextResponse.json(installments);
 }
 
@@ -21,9 +23,28 @@ export async function POST(req: NextRequest) {
   }
   await connectToDatabase();
   const data = await req.json();
+
+  // Gerar as parcelas (payments)
+  const payments = [];
+  const startDate = new Date(data.startDate);
+  const amount = data.installmentAmount;
+  for (let i = 0; i < data.numberOfInstallments; i++) {
+    const dueDate = new Date(
+      startDate.getFullYear(),
+      startDate.getMonth() + i,
+      startDate.getDate()
+    );
+    payments.push({
+      dueDate,
+      status: "pending",
+      amount,
+    });
+  }
+
   const installment = await Installment.create({
     ...data,
     userId: session.user.id,
+    payments,
   });
   return NextResponse.json(installment, { status: 201 });
 }

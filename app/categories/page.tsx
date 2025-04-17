@@ -1,15 +1,50 @@
 "use client";
 import { useEffect, useState } from "react";
 import AuthGuard from "@/components/AuthGuard";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableHeader,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
+import { PencilIcon, Trash2Icon } from "lucide-react";
+
+interface Category {
+  _id: string;
+  name: string;
+  type: "income" | "expense";
+}
 
 export default function CategoriesPage() {
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [name, setName] = useState("");
-  const [type, setType] = useState("income");
+  const [type, setType] = useState<"income" | "expense">("income");
   const [editId, setEditId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
-  const [editType, setEditType] = useState("income");
+  const [editType, setEditType] = useState<"income" | "expense">("income");
   const [error, setError] = useState("");
+
+  const handleTypeChange = (value: string) => {
+    if (value === "income" || value === "expense") {
+      if (editId) {
+        setEditType(value);
+      } else {
+        setType(value);
+      }
+    }
+  };
 
   async function fetchCategories() {
     const res = await fetch("/api/categories");
@@ -40,7 +75,9 @@ export default function CategoriesPage() {
   }
 
   async function handleEdit(id: string) {
-    const cat = categories.find((c: any) => c._id === id);
+    const cat = categories.find((c) => c._id === id);
+    if (!cat) return;
+
     setEditId(id);
     setEditName(cat.name);
     setEditType(cat.type);
@@ -72,84 +109,106 @@ export default function CategoriesPage() {
 
   return (
     <AuthGuard>
-      <div className="max-w-lg mx-auto mt-10 p-4">
-        <h1 className="text-2xl font-bold mb-6">Categorias</h1>
-        <form
-          onSubmit={editId ? handleUpdate : handleAdd}
-          className="flex gap-2 mb-4"
-        >
-          <select
-            value={editId ? editType : type}
-            onChange={(e) =>
-              editId ? setEditType(e.target.value) : setType(e.target.value)
-            }
-            className="border p-2 rounded"
-          >
-            <option value="income">Receita</option>
-            <option value="expense">Despesa</option>
-          </select>
-          <input
-            type="text"
-            placeholder="Nome da categoria"
-            value={editId ? editName : name}
-            onChange={(e) =>
-              editId ? setEditName(e.target.value) : setName(e.target.value)
-            }
-            className="border p-2 rounded"
-            required
-          />
-          <button
-            type="submit"
-            className="bg-primary text-white rounded p-2 font-semibold min-w-[100px]"
-          >
-            {editId ? "Salvar" : "Adicionar"}
-          </button>
-          {editId && (
-            <button
-              type="button"
-              onClick={() => {
-                setEditId(null);
-                setEditName("");
-                setEditType("income");
-              }}
-              className="bg-gray-300 text-black rounded p-2 font-semibold min-w-[100px]"
+      <div className="container mx-auto p-4 max-w-4xl">
+        <Card>
+          <CardHeader>
+            <CardTitle>Categorias</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form
+              onSubmit={editId ? handleUpdate : handleAdd}
+              className="flex flex-col sm:flex-row gap-4 mb-6"
             >
-              Cancelar
-            </button>
-          )}
-        </form>
-        {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
-        <table className="w-full border text-sm">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2">Tipo</th>
-              <th className="p-2">Nome</th>
-              <th className="p-2">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.map((cat: any) => (
-              <tr key={cat._id}>
-                <td>{cat.type === "income" ? "Receita" : "Despesa"}</td>
-                <td>{cat.name}</td>
-                <td>
-                  <button
-                    onClick={() => handleEdit(cat._id)}
-                    className="text-blue-600 underline mr-2"
+              <Select
+                value={editId ? editType : type}
+                onValueChange={handleTypeChange}
+              >
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Selecione o tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="income">Receita</SelectItem>
+                  <SelectItem value="expense">Despesa</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Input
+                type="text"
+                placeholder="Nome da categoria"
+                value={editId ? editName : name}
+                onChange={(e) =>
+                  editId ? setEditName(e.target.value) : setName(e.target.value)
+                }
+                className="flex-1"
+                required
+              />
+
+              <div className="flex gap-2">
+                <Button type="submit" className="w-full sm:w-auto">
+                  {editId ? "Salvar" : "Adicionar"}
+                </Button>
+                {editId && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
+                      setEditId(null);
+                      setEditName("");
+                      setEditType("income");
+                    }}
+                    className="w-full sm:w-auto"
                   >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => handleDelete(cat._id)}
-                    className="text-red-600 underline"
-                  >
-                    Remover
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    Cancelar
+                  </Button>
+                )}
+              </div>
+            </form>
+
+            {error && (
+              <div className="text-destructive text-sm mb-4">{error}</div>
+            )}
+
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Nome</TableHead>
+                  <TableHead className="w-[100px]">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {categories.map((cat) => (
+                  <TableRow key={cat._id}>
+                    <TableCell>
+                      {cat.type === "income" ? "Receita" : "Despesa"}
+                    </TableCell>
+                    <TableCell>{cat.name}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => handleEdit(cat._id)}
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          onClick={() => handleDelete(cat._id)}
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive hover:text-destructive"
+                        >
+                          <Trash2Icon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
     </AuthGuard>
   );
