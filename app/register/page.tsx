@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -9,6 +10,13 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // Redireciona se já estiver autenticado
+  if (status === "authenticated") {
+    router.push("/dashboard");
+    return null;
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
