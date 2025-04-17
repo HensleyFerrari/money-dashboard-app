@@ -7,6 +7,11 @@ import { Home, Tag, DollarSign } from "lucide-react";
 export default function Navbar() {
   const pathname = usePathname();
 
+  // Oculta o menu nas páginas de login e register
+  if (pathname === "/login" || pathname === "/register") {
+    return null;
+  }
+
   const links = [
     { href: "/dashboard", label: "Dashboard", icon: Home },
     { href: "/categories", label: "Categorias", icon: Tag },
