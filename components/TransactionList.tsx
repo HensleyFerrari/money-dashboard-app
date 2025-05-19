@@ -19,6 +19,8 @@ interface Transaction {
   amount: number;
   date: string;
   category: string;
+  transactionType?: "pix" | "debit" | "credit"; // Added
+  installment?: number; // Added
 }
 
 export default function TransactionList({
@@ -48,6 +50,8 @@ export default function TransactionList({
             <TableHead className="w-[120px]">Valor</TableHead>
             <TableHead className="w-[120px]">Data</TableHead>
             <TableHead className="w-[150px]">Categoria</TableHead>
+            <TableHead className="w-[150px]">Tipo Transação</TableHead> {/* Added */}
+            <TableHead className="w-[100px]">Parcelas</TableHead> {/* Added */}
             <TableHead className="w-[100px] text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -65,6 +69,10 @@ export default function TransactionList({
               <TableCell>R$ {Number(t.amount).toFixed(2)}</TableCell>
               <TableCell>{new Date(t.date).toLocaleDateString()}</TableCell>
               <TableCell>{t.category}</TableCell>
+              <TableCell>{t.transactionType ? t.transactionType.charAt(0).toUpperCase() + t.transactionType.slice(1) : '-'}</TableCell> {/* Added */}
+              <TableCell>
+                {t.transactionType === "credit" && t.installment ? t.installment : "-"}
+              </TableCell> {/* Added */}
               <TableCell className="flex justify-end gap-2">
                 {onEdit && (
                   <Button
