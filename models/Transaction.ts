@@ -7,9 +7,10 @@ export interface ITransaction extends Document {
   amount: number;
   date: Date;
   category: string;
-  installmentId?: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
+  transactionType: "pix" | "debit" | "credit";
+  installment: number;
 }
 
 const TransactionSchema = new Schema<ITransaction>({
@@ -19,7 +20,6 @@ const TransactionSchema = new Schema<ITransaction>({
   amount: { type: Number, required: true },
   date: { type: Date, required: true },
   category: { type: String, required: true },
-  installmentId: { type: Schema.Types.ObjectId, ref: "Installment" },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

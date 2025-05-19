@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Tag, DollarSign } from "lucide-react";
+import { Home, Tag } from "lucide-react";
 import LogoutButton from "./LogoutButton";
 
 export default function Navbar() {
@@ -16,7 +16,6 @@ export default function Navbar() {
   const links = [
     { href: "/dashboard", label: "Dashboard", icon: Home },
     { href: "/categories", label: "Categorias", icon: Tag },
-    { href: "/installments", label: "Parcelados", icon: DollarSign },
   ];
 
   return (
